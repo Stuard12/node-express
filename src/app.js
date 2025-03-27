@@ -10,6 +10,7 @@ import helloRoute from "./routes/helloRouter.js";
 
 const app = express();
 //const webhookSecret = process.env.WEBHOOK_SECRET; // la vas a configurar más adelante en Railway
+console.log("🔐 SVIX_SECRET leída desde process.env:", process.env.SVIX_SECRET);
 const svixSecret = process.env.SVIX_SECRET || ""; // Idealmente en tus variables de entorno
 console.log("🔐 SVIX_SECRET leído:", svixSecret);
 console.log("🔐 SVIX_SECRET leído2:", `"${process.env.SVIX_SECRET}"`);
