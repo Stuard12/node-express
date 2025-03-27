@@ -1,4 +1,4 @@
-console.log("🔥 ESTE ES EL index.js QUE ESTÁ CORRIENDO");
+console.log("💡 Verificando instalación de body-parser");
 
 import http from "http";
 import { config } from "dotenv";
