@@ -7,8 +7,12 @@ import bodyParser from "body-parser";
 import * as middleware from "./utils/middleware.js";
 import helloRoute from "./routes/helloRouter.js";
 
+
 const app = express();
 const webhookSecret = process.env.WEBHOOK_SECRET; // la vas a configurar más adelante en Railway
+const svixSecret = process.env.SVIX_SECRET || ""; // Idealmente en tus variables de entorno
+
+
 
 // Middleware base (colocar siempre antes que las rutas)
 app.use(cors());
@@ -29,26 +33,31 @@ app.post("/pagar", (req, res) => {
 // ✅ WEBHOOK de RECURRENTE
 app.use("/webhook", bodyParser.raw({ type: "application/json" }));
 
-app.post("/webhook", async (req, res) => {
+app.post("/webhook", bodyParser.raw({ type: "*/*" }), (req, res) => {
   const payload = req.body;
   const headers = req.headers;
 
-  const wh = new Webhook(webhookSecret);
+  const wh = new Webhook(svixSecret);
 
   let evt;
 
   try {
     evt = wh.verify(payload, headers);
   } catch (err) {
-    console.error("❌ Webhook verification failed.", err.message);
-    return res.status(400).json({ error: "Invalid webhook" });
+    console.error("❌ Firma de Webhook inválida:", err.message);
+    return res.status(400).json({ error: "Firma no válida" });
   }
 
-  const eventType = evt.type;
-  console.log("✅ Evento recibido:", eventType);
-  console.log("🧾 Contenido:", evt.data);
+  const { type, data } = evt;
 
-  res.status(200).json({ received: true });
+  console.log("✅ Webhook recibido correctamente");
+  console.log("🧾 Tipo de evento:", type);
+  console.log("📦 Datos del evento:", data);
+
+  // Puedes actuar aquí dependiendo del evento recibido
+  // if (type === "payment.completed") { ... }
+
+  return res.status(200).json({ message: "Evento procesado con éxito" });
 });
 
 // Otras rutas
