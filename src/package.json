@@ -1,5 +1,5 @@
 {
-	"name": "node-express-starter",
+	"name": "node-express-app",
 	"version": "1.0.0",
 	"description": "A Node.js Express starter template with basic setup configuration.",
 	"main": "index.js",
