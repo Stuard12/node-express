@@ -38,12 +38,14 @@ app.post("/webhook", async (req, res) => {
     const payload = JSON.stringify(req.body);
     const headers = req.headers;
 
+    console.log("📩 Headers recibidos:", headers);
+    console.log("📦 Payload recibido:", payload);
+
     const wh = new Webhook(process.env.SVIX_SECRET || "");
     const evt = wh.verify(payload, headers);
 
     console.log("✅ Webhook verificado:", evt);
 
-    // Aquí puedes reaccionar al evento según el tipo
     if (evt.type === "payment_intent.succeeded") {
       console.log("💰 Pago exitoso:", evt.data);
     }
