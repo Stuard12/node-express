@@ -24,15 +24,34 @@ app.post("/pagar", (req, res) => {
 });
 
 // ✅ WEBHOOK de RECURRENTE
-app.post("/webhook", (req, res) => {
-  console.log("📩 Webhook recibido desde Recurrente (Svix):");
-  console.log(req.body);
+import { Webhook } from "svix";
+import bodyParser from "body-parser";
 
-  // Aquí podrías validar firma si Recurrente la envía
+const webhookSecret = process.env.WEBHOOK_SECRET; // la vas a configurar más adelante en Railway
 
-  res.status(200).json({ mensaje: "✅ Webhook recibido correctamente" }); // Confirmación de recepción
+app.use("/webhook", bodyParser.raw({ type: "application/json" }));
+
+app.post("/webhook", async (req, res) => {
+  const payload = req.body;
+  const headers = req.headers;
+
+  const wh = new Webhook(webhookSecret);
+
+  let evt;
+
+  try {
+    evt = wh.verify(payload, headers);
+  } catch (err) {
+    console.error("❌ Webhook verification failed.", err.message);
+    return res.status(400).json({ error: "Invalid webhook" });
+  }
+
+  const eventType = evt.type;
+  console.log("✅ Evento recibido:", eventType);
+  console.log("🧾 Contenido:", evt.data);
+
+  res.status(200).json({ received: true });
 });
-
 
 // Otras rutas
 app.get("/", (req, res) => {
