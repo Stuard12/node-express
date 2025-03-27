@@ -25,12 +25,12 @@ app.post("/pagar", (req, res) => {
 
 // ✅ WEBHOOK de RECURRENTE
 app.post("/webhook", (req, res) => {
-  console.log("📩 Webhook recibido desde Recurrente:");
+  console.log("📩 Webhook recibido desde Recurrente (Svix):");
   console.log(req.body);
 
   // Aquí podrías validar firma si Recurrente la envía
 
-  res.status(200).json({ status: "ok" }); // Confirmación de recepción
+  res.status(200).json({ mensaje: "✅ Webhook recibido correctamente" }); // Confirmación de recepción
 });
 
 
