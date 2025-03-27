@@ -12,6 +12,7 @@ const app = express();
 //const webhookSecret = process.env.WEBHOOK_SECRET; // la vas a configurar más adelante en Railway
 const svixSecret = process.env.SVIX_SECRET || ""; // Idealmente en tus variables de entorno
 console.log("🔐 SVIX_SECRET leído:", svixSecret);
+console.log("🔐 SVIX_SECRET leído2:", `"${process.env.SVIX_SECRET}"`);
 
 
 
