@@ -10,6 +10,16 @@ const app = express();
 // parse json request body
 app.use(express.json());
 
+app.post("/pagar", (req, res) => {
+  console.log("📥 Se recibió un POST en /pagar");
+  console.log("💳 Datos recibidos:", req.body);
+
+  res.status(200).json({
+    mensaje: "✅ Pago recibido correctamente",
+    datos: req.body
+  });
+});
+
 // enable cors
 app.use(cors());
 
