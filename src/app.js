@@ -7,15 +7,15 @@ import bodyParser from "body-parser";
 import * as middleware from "./utils/middleware.js";
 import helloRoute from "./routes/helloRouter.js";
 
-
 const app = express();
-//const webhookSecret = process.env.WEBHOOK_SECRET; // la vas a configurar más adelante en Railway
-console.log("🔐 SVIX_SECRET leída desde process.env:", process.env.SVIX_SECRET);
-const svixSecret = process.env.SVIX_SECRET || "whsec_CqCq0RmZICpwxp0czuIgIAZgVmjAufeF";
-//console.log("🔐 SVIX_SECRET leído:", svixSecret);
-console.log("🔐 SVIX_SECRET leído2:", `"${process.env.SVIX_SECRET}"`);
 
-//console.log("🔐 AYUDA DE GEMINI",process.env);
+// 🔐 Clave secreta quemada temporalmente para pruebas
+const svixSecret = "whsec_CqCq0RmZICpwxp0czuIgIAZgVmjAufeF";
+
+// Middleware base
+app.use(cors());
+app.use(express.json());
+app.use(morgan("tiny"));
 
 
 // Middleware base (colocar siempre antes que las rutas)
