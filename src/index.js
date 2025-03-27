@@ -14,4 +14,4 @@ server.listen(PORT, () => {
 	logger.info(`Server listening at http://localhost:${PORT}`);
 	logger.info(`Access the root route at http://localhost:${PORT}/hello`);
 });
-console.log("🚀 Servidor reiniciado tercer intento");
+console.log("🚀 Servidor reiniciado cuarto intento  💥 Ahora sí deberías ver esto en los logs");
