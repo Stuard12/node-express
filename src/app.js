@@ -7,9 +7,12 @@ import helloRoute from "./routes/helloRouter.js";
 
 const app = express();
 
-// parse json request body
+// Middleware base (colocar siempre antes que las rutas)
+app.use(cors());
 app.use(express.json());
+app.use(morgan("tiny"));
 
+// ✅ TU ENDPOINT AQUÍ
 app.post("/pagar", (req, res) => {
   console.log("📥 Se recibió un POST en /pagar");
   console.log("💳 Datos recibidos:", req.body);
@@ -20,20 +23,14 @@ app.post("/pagar", (req, res) => {
   });
 });
 
-// enable cors
-app.use(cors());
-
-// request logger middleware
-app.use(morgan("tiny"));
-
-// healthcheck endpoint
+// Otras rutas
 app.get("/", (req, res) => {
   res.status(200).send({ status: "ok" });
 });
 
 app.use("/hello", helloRoute);
 
-// custom middleware
+// Manejo de errores
 app.use(middleware.unknownEndpoint);
 app.use(middleware.errorHandler);
 
