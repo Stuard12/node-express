@@ -23,6 +23,17 @@ app.post("/pagar", (req, res) => {
   });
 });
 
+// ✅ WEBHOOK de RECURRENTE
+app.post("/webhook", (req, res) => {
+  console.log("📩 Webhook recibido desde Recurrente:");
+  console.log(req.body);
+
+  // Aquí podrías validar firma si Recurrente la envía
+
+  res.status(200).json({ status: "ok" }); // Confirmación de recepción
+});
+
+
 // Otras rutas
 app.get("/", (req, res) => {
   res.status(200).send({ status: "ok" });
