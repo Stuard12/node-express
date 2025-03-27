@@ -15,6 +15,7 @@ const svixSecret = process.env.SVIX_SECRET || ""; // Idealmente en tus variables
 console.log("🔐 SVIX_SECRET leído:", svixSecret);
 console.log("🔐 SVIX_SECRET leído2:", `"${process.env.SVIX_SECRET}"`);
 
+console.log("🔐 AYUDA DE GEMINI",process.env);
 
 
 // Middleware base (colocar siempre antes que las rutas)
