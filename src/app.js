@@ -33,31 +33,26 @@ app.post("/pagar", (req, res) => {
 // ✅ WEBHOOK de RECURRENTE
 app.use("/webhook", bodyParser.raw({ type: "application/json" }));
 
-app.post("/webhook", bodyParser.raw({ type: "*/*" }), (req, res) => {
-  const payload = req.body;
-  const headers = req.headers;
-
-  const wh = new Webhook(svixSecret);
-
-  let evt;
-
+app.post("/webhook", async (req, res) => {
   try {
-    evt = wh.verify(payload, headers);
+    const payload = JSON.stringify(req.body);
+    const headers = req.headers;
+
+    const wh = new Webhook(process.env.SVIX_SECRET || "");
+    const evt = wh.verify(payload, headers);
+
+    console.log("✅ Webhook verificado:", evt);
+
+    // Aquí puedes reaccionar al evento según el tipo
+    if (evt.type === "payment_intent.succeeded") {
+      console.log("💰 Pago exitoso:", evt.data);
+    }
+
+    res.status(200).json({ ok: true });
   } catch (err) {
-    console.error("❌ Firma de Webhook inválida:", err.message);
-    return res.status(400).json({ error: "Firma no válida" });
+    console.error("❌ Error verificando webhook:", err.message);
+    res.status(400).json({ error: "Webhook no verificado" });
   }
-
-  const { type, data } = evt;
-
-  console.log("✅ Webhook recibido correctamente");
-  console.log("🧾 Tipo de evento:", type);
-  console.log("📦 Datos del evento:", data);
-
-  // Puedes actuar aquí dependiendo del evento recibido
-  // if (type === "payment.completed") { ... }
-
-  return res.status(200).json({ message: "Evento procesado con éxito" });
 });
 
 // Otras rutas
