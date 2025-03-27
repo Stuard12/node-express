@@ -1,3 +1,5 @@
+console.log("🔥 ESTE ES EL index.js QUE ESTÁ CORRIENDO");
+
 import http from "http";
 import { config } from "dotenv";
 import app from "./app.js";
