@@ -1,11 +1,14 @@
 import express from "express";
 import cors from "cors";
 import morgan from "morgan";
+import { Webhook } from "svix";
+import bodyParser from "body-parser";
 
 import * as middleware from "./utils/middleware.js";
 import helloRoute from "./routes/helloRouter.js";
 
 const app = express();
+const webhookSecret = process.env.WEBHOOK_SECRET; // la vas a configurar más adelante en Railway
 
 // Middleware base (colocar siempre antes que las rutas)
 app.use(cors());
@@ -24,11 +27,6 @@ app.post("/pagar", (req, res) => {
 });
 
 // ✅ WEBHOOK de RECURRENTE
-import { Webhook } from "svix";
-import bodyParser from "body-parser";
-
-const webhookSecret = process.env.WEBHOOK_SECRET; // la vas a configurar más adelante en Railway
-
 app.use("/webhook", bodyParser.raw({ type: "application/json" }));
 
 app.post("/webhook", async (req, res) => {
