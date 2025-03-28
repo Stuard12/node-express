@@ -6,6 +6,7 @@ import bodyParser from "body-parser";
 
 import * as middleware from "./utils/middleware.js";
 import helloRoute from "./routes/helloRouter.js";
+import axios from "axios";
 
 const app = express();
 
@@ -32,6 +33,59 @@ app.post("/pagar", (req, res) => {
     mensaje: "✅ Pago recibido correctamente",
     datos: req.body
   });
+});
+// ✅ CREAR CHECKOUT de RECURRENTE
+app.post("/crear-checkout", async (req, res) => {
+  try {
+    console.log("✅ Recibido POST en /crear-checkout");
+
+    const { name, amount_in_cents, currency, image_url, quantity } = req.body;
+
+    // Validación básica
+    if (!name || !amount_in_cents || !currency) {
+      return res.status(400).json({ error: "Faltan datos obligatorios." });
+    }
+
+    // Datos para Recurrente
+    const data = {
+      items: [
+        {
+          name,
+          amount_in_cents,
+          currency,
+          image_url: image_url || "", // opcional
+          quantity: quantity || 1     // default 1
+        }
+      ],
+      success_url: "https://www.google.com",
+      cancel_url: "https://www.amazon.com"
+    };
+
+    // Llamada a Recurrente
+    const response = await axios.post(
+      "https://app.recurrente.com/api/checkouts/",
+      data,
+      {
+        headers: {
+          "X-PUBLIC-KEY": process.env.RECURRENTE_PUBLIC_KEY,
+          "X-SECRET-KEY": process.env.RECURRENTE_SECRET_KEY,
+          "Content-Type": "application/json"
+        }
+      }
+    );
+
+    console.log("✅ Checkout creado:", response.data);
+
+    // Responder al front
+    return res.status(200).json({
+      checkout_url: response.data.checkout_url,
+      id: response.data.id
+    });
+
+  } catch (error) {
+    console.error("❌ Error creando checkout:", error.response?.data || error.message);
+    return res.status(500).json({ error: "Error creando checkout" });
+  }
 });
 
 // ✅ WEBHOOK de RECURRENTE
