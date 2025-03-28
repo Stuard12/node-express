@@ -1,9 +1,11 @@
-console.log("💡 Verificando instalación de body-parser");
-
 import http from "http";
 import { config } from "dotenv";
 import app from "./app.js";
 import * as logger from "./utils/logger.js";
+
+console.log("🔑 PUBLIC KEY:", process.env.RECURRENTE_PUBLIC_KEY);
+console.log("🔑 SECRET KEY:", process.env.RECURRENTE_SECRET_KEY);
+console.log("🔑 SVIX SECRET:", process.env.SVIX_SECRET);
 
 if (process.env.NODE_ENV !== "production") {
 	config();
