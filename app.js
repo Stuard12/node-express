@@ -9,9 +9,13 @@ import helloRoute from "./routes/helloRouter.js";
 import axios from "axios";
 
 const app = express();
+const publicKey = process.env.RECURRENTE_PUBLIC_KEY;
+const secretKey = process.env.RECURRENTE_SECRET_KEY;
+const svixSecret = process.env.SVIX_SECRET;
 
-// 🔐 Clave secreta quemada temporalmente para pruebas
-const svixSecret = "whsec_CqCq0RmZICpwxp0czuIgIAZgVmjAufeF";
+console.log("PUBLIC KEY:", publicKey);
+console.log("SECRET KEY:", secretKey);
+console.log("SVIX SECRET:", svixSecret);
 
 // Middleware base
 app.use(cors());
