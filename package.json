@@ -1,26 +1,3 @@
-{
-	"name": "node-express-starter-app",
-	"version": "1.0.0",
-	"description": "A Node.js Express starter template with basic setup configuration.",
-	"main": "index.js",
-	"author": "vimode",
-	"license": "MIT",
-	"type": "module",
-	"scripts": {
-		"dev": "nodemon index.js",
-		"start": "node index.js"
-	},
-	"dependencies": {
-		"cors": "^2.8.5",
-		"dotenv": "^16.4.7",
-		"express": "^4.21.2",
-		"morgan": "^1.10.0",
-		"svix": "^0.84.0",
-		"body-parser": "^1.20.2",
-		"axios": "^1.6.5",
-		"node-fetch": "^3.3.2"
-	},
-	"devDependencies": {
-		"nodemon": "^3.1.9"
-	}
+"scripts": {
+    "start": "node index.js"
 }
