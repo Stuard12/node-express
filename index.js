@@ -1,11 +1,8 @@
 import express from "express";
-import dotenv from "dotenv";
-
-dotenv.config();
 
 const app = express();
 
-// Leer la variable
+// Leer directamente la variable inyectada por Railway
 const mensaje = process.env.MI_VARIABLE || "No definida";
 
 console.log("🔔 Valor de MI_VARIABLE:", mensaje);
