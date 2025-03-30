@@ -6,6 +6,12 @@
     "start": "node index.js"
   },
   "dependencies": {
-    ...
+    "express": "^4.18.2",
+    "dotenv": "^16.4.7",
+    "cors": "^2.8.5",
+    "morgan": "^1.10.0",
+    "axios": "^1.6.5",
+    "svix": "^0.84.0",
+    "body-parser": "^1.20.2"
   }
 }
