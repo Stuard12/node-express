@@ -2,6 +2,8 @@ import express from "express";
 
 const app = express();
 
+console.log(process.env.MI_VARIABLE);
+
 app.get("/", (req, res) => {
   res.send(`Valor de MI_VARIABLE: ${process.env.MI_VARIABLE || "No definida"}`);
 });
