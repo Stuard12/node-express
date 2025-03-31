@@ -28,20 +28,20 @@ app.post("/crear-checkout", async (req, res) => {
     try {
         console.log("✅ Recibido POST en /crear-checkout");
 
-        const { name, amount_in_cents, currency, image_url, quantity } = req.body;
+        const { order_id, total_in_cents } = req.body;
 
-        if (!name || !amount_in_cents || !currency) {
+        if (!order_id || !total_in_cents) {
             return res.status(400).json({ error: "Faltan datos obligatorios." });
         }
 
+        // Preparar checkout
         const data = {
             items: [
                 {
-                    name,
-                    amount_in_cents,
-                    currency,
-                    image_url: image_url || "",
-                    quantity: quantity || 1
+                    name: `Pedido Shopify #${order_id}`,
+                    amount_in_cents: total_in_cents,
+                    currency: "GTQ",
+                    quantity: 1
                 }
             ],
             success_url: "https://node-express-production-0263.up.railway.app/success",
@@ -59,8 +59,6 @@ app.post("/crear-checkout", async (req, res) => {
                 }
             }
         );
-
-        console.log("✅ Checkout creado:", response.data);
 
         return res.redirect(response.data.checkout_url);
 
