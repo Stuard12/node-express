@@ -93,27 +93,36 @@ app.get("/cancel", (req, res) => {
 // ✅ ENDPOINT DEL WEBHOOK DE RECURRENTE (con validación)
 app.use("/webhook", bodyParser.raw({ type: "application/json" }));
 
+// Webhook seguro
 app.post("/webhook", async (req, res) => {
+    const payload = req.body;
+    const headers = req.headers;
+
+    console.log("📩 Headers recibidos:", headers);
+
     try {
-        const payload = JSON.stringify(req.body);
-        const headers = req.headers;
-
-        console.log("📩 Headers recibidos:", headers);
-        console.log("📦 Payload recibido:", payload);
-
-        const wh = new Webhook(process.env.SVIX_SECRET || "");
+        // Verificación de firma
+        const wh = new Webhook(process.env.SVIX_SECRET);
         const evt = wh.verify(payload, headers);
+        
+        console.log("✅ Evento Verificado:", evt);
 
-        console.log("✅ Webhook verificado:", evt);
-
+        // ⚡ Aquí procesas el evento según su tipo
         if (evt.type === "payment_intent.succeeded") {
-            console.log("💰 Pago exitoso:", evt.data);
+            console.log("💰 Pago exitoso recibido:");
+            console.log(evt.data);
+            // Aquí luego puedes: 
+            // - Notificar a Shopify
+            // - Marcar pedido como pagado
+            // - Guardar en base de datos
+        } else {
+            console.log("🔔 Otro evento recibido:", evt.type);
         }
 
-        res.status(200).json({ ok: true });
+        return res.status(200).json({ received: true });
     } catch (err) {
-        console.error("❌ Error verificando webhook:", err.message);
-        res.status(400).json({ error: "Webhook no verificado" });
+        console.error("❌ Error validando webhook:", err.message);
+        return res.status(400).json({ error: "Webhook no verificado" });
     }
 });
 
