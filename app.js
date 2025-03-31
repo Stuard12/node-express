@@ -22,6 +22,7 @@ app.use(cors());
 app.use(express.json()); // Para Hoppscotch y otros clientes JSON
 app.use(express.urlencoded({ extended: true })); // Para formularios HTML (como el de Shopify)
 app.use(morgan("tiny"));
+app.use("/webhook", bodyParser.raw({ type: "application/json" }));
 
 // ✅ ENDPOINT DE CREACIÓN DEL CHECKOUT (Shopify lo usará)
 app.post("/crear-checkout", async (req, res) => {
@@ -88,38 +89,39 @@ app.get("/cancel", (req, res) => {
 
 
 // ✅ ENDPOINT DEL WEBHOOK DE RECURRENTE (con validación)
-app.use("/webhook", bodyParser.raw({ type: "application/json" }));
-
-// Webhook seguro
 app.post("/webhook", async (req, res) => {
-    const payload = req.body;
     const headers = req.headers;
-
-    console.log("📩 Headers recibidos:", headers);
+    const payload = req.body;
 
     try {
-        // Verificación de firma
         const wh = new Webhook(process.env.SVIX_SECRET);
         const evt = wh.verify(payload, headers);
-        
-        console.log("✅ Evento Verificado:", evt);
 
-        // ⚡ Aquí procesas el evento según su tipo
+        console.log("✅ Webhook recibido y verificado");
+        console.log("Tipo de evento:", evt.type);
+        console.log("Datos:", evt.data);
+
+        // Validamos que sea un pago exitoso
         if (evt.type === "payment_intent.succeeded") {
-            console.log("💰 Pago exitoso recibido:");
-            console.log(evt.data);
-            // Aquí luego puedes: 
-            // - Notificar a Shopify
-            // - Marcar pedido como pagado
+            const checkoutId = evt.data?.checkout_id;
+            const orderId = evt.data?.metadata?.order_id || "desconocido";
+
+            console.log(`💰 Pago exitoso detectado para Order ID: ${orderId} Checkout ID: ${checkoutId}`);
+            
+            // 💡 Aquí es donde luego puedes:
+            // - Confirmar pedido en Shopify
+            // - Enviar correo al cliente
             // - Guardar en base de datos
+
+            res.status(200).json({ received: true });
         } else {
-            console.log("🔔 Otro evento recibido:", evt.type);
+            console.log("🔔 Evento recibido pero no es de pago exitoso");
+            res.status(200).json({ received: true });
         }
 
-        return res.status(200).json({ received: true });
     } catch (err) {
         console.error("❌ Error validando webhook:", err.message);
-        return res.status(400).json({ error: "Webhook no verificado" });
+        res.status(400).json({ error: "Webhook no verificado" });
     }
 });
 
