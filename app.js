@@ -31,16 +31,22 @@ app.post("/crear-checkout", async (req, res) => {
 
         const { order_id, total_in_cents } = req.body;
 
+        // Validación fuerte
         if (!order_id || !total_in_cents) {
             return res.status(400).json({ error: "Faltan datos obligatorios." });
         }
 
-        // Preparar checkout
+        const totalCents = parseInt(total_in_cents, 10);
+
+        if (isNaN(totalCents) || totalCents < 100) {  // 🚩 Puedes ajustar mínimo a Q1.00 = 100
+            return res.status(400).json({ error: "Monto inválido. Debe ser mínimo Q1.00 (100 centavos)" });
+        }
+
         const data = {
             items: [
                 {
                     name: `Pedido Shopify #${order_id}`,
-                    amount_in_cents: total_in_cents,
+                    amount_in_cents: totalCents,
                     currency: "GTQ",
                     quantity: 1
                 }
