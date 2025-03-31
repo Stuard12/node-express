@@ -111,29 +111,31 @@ app.post("/webhook", async (req, res) => {
         const evt = wh.verify(payload, headers);
 
         console.log("✅ Webhook recibido y verificado");
-        console.log("Tipo de evento:", evt.type);
-        console.log("Datos:", evt.data);
+        console.log("🟣 Evento:", evt.type);
+        console.log("📦 Datos recibidos:", JSON.stringify(evt.data, null, 2));
 
-        // Validamos que sea un pago exitoso
         if (evt.type === "payment_intent.succeeded") {
             const checkoutId = evt.data?.checkout_id;
-            const orderId = evt.data?.metadata?.order_id || "desconocido";
+            const amount = evt.data?.amount_in_cents / 100;
+            const currency = evt.data?.currency;
+            const createdAt = evt.data?.created_at;
 
-            console.log(`💰 Pago exitoso detectado para Order ID: ${orderId} Checkout ID: ${checkoutId}`);
-            
-            // 💡 Aquí es donde luego puedes:
-            // - Confirmar pedido en Shopify
-            // - Enviar correo al cliente
-            // - Guardar en base de datos
+            console.log("💰 Pago exitoso");
+            console.log(`→ Checkout ID: ${checkoutId}`);
+            console.log(`→ Monto: Q${amount}`);
+            console.log(`→ Moneda: ${currency}`);
+            console.log(`→ Fecha: ${createdAt}`);
+
+            // Aquí puedes luego guardar, notificar, o marcar pedido pagado
 
             res.status(200).json({ received: true });
         } else {
-            console.log("🔔 Evento recibido pero no es de pago exitoso");
+            console.log("🔔 Evento recibido pero no es de tipo payment_intent.succeeded");
             res.status(200).json({ received: true });
         }
 
     } catch (err) {
-        console.error("❌ Error validando webhook:", err.message);
+        console.error("❌ Webhook inválido:", err.message);
         res.status(400).json({ error: "Webhook no verificado" });
     }
 });
