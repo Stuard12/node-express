@@ -71,6 +71,25 @@ app.post("/crear-checkout", async (req, res) => {
     }
 });
 
+// ✅ Redireccion exitoso
+app.get("/success", (req, res) => {
+    res.send(`
+        <h1>✅ Pago exitoso</h1>
+        <p>Tu pago fue completado correctamente.</p>
+        <a href="https://TU_TIENDA.myshopify.com">Volver a la tienda</a>
+    `);
+});
+
+// ✅ Redireccion cancelado
+app.get("/cancel", (req, res) => {
+    res.send(`
+        <h1>❌ Pago cancelado</h1>
+        <p>El cliente canceló el pago.</p>
+        <a href="https://TU_TIENDA.myshopify.com">Volver a la tienda</a>
+    `);
+});
+
+
 // ✅ ENDPOINT DEL WEBHOOK DE RECURRENTE (con validación)
 app.use("/webhook", bodyParser.raw({ type: "application/json" }));
 
