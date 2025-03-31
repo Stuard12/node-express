@@ -18,7 +18,8 @@ console.log("SVIX SECRET:", process.env.SVIX_SECRET);
 
 // Middlewares
 app.use(cors());
-app.use(express.json());
+app.use(express.json()); // Para Hoppscotch y otros clientes JSON
+app.use(express.urlencoded({ extended: true })); // Para formularios HTML (como el de Shopify)
 app.use(morgan("tiny"));
 
 // ✅ ENDPOINT DE CREACIÓN DEL CHECKOUT (Shopify lo usará)
