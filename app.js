@@ -31,15 +31,21 @@ app.post("/crear-checkout", async (req, res) => {
 
         const { order_id, total_in_cents } = req.body;
 
-        // Validación fuerte
         if (!order_id || !total_in_cents) {
+            console.warn("⚠️ Faltan datos en la petición:", req.body);
             return res.status(400).json({ error: "Faltan datos obligatorios." });
         }
 
         const totalCents = parseInt(total_in_cents, 10);
 
-        if (isNaN(totalCents) || totalCents < 100) {  // 🚩 Puedes ajustar mínimo a Q1.00 = 100
-            return res.status(400).json({ error: "Monto inválido. Debe ser mínimo Q1.00 (100 centavos)" });
+        if (isNaN(totalCents)) {
+            console.warn("⚠️ total_in_cents no es un número:", total_in_cents);
+            return res.status(400).json({ error: "El monto debe ser un número válido." });
+        }
+
+        if (totalCents < 500) { // Q5.00 mínimo
+            console.warn("⚠️ Monto menor al mínimo:", totalCents);
+            return res.status(400).json({ error: "El monto mínimo permitido es Q5.00 (500 centavos)" });
         }
 
         const data = {
@@ -67,6 +73,7 @@ app.post("/crear-checkout", async (req, res) => {
             }
         );
 
+        console.log("✅ Checkout creado:", response.data.checkout_url);
         return res.redirect(response.data.checkout_url);
 
     } catch (error) {
