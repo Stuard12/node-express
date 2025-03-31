@@ -22,7 +22,6 @@ app.use(cors());
 app.use(express.json()); // Para Hoppscotch y otros clientes JSON
 app.use(express.urlencoded({ extended: true })); // Para formularios HTML (como el de Shopify)
 app.use(morgan("tiny"));
-app.use("/webhook", bodyParser.raw({ type: "application/json" }));
 
 // ✅ ENDPOINT DE CREACIÓN DEL CHECKOUT (Shopify lo usará)
 app.post("/crear-checkout", async (req, res) => {
@@ -102,6 +101,8 @@ app.get("/cancel", (req, res) => {
 
 
 // ✅ ENDPOINT DEL WEBHOOK DE RECURRENTE (con validación)
+
+app.use("/webhook", bodyParser.raw({ type: "application/json" }));
 app.post("/webhook", async (req, res) => {
     const headers = req.headers;
     const payload = req.body;
