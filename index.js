@@ -1,3 +1,4 @@
+import app from './app.js';
 import express from "express";
 
 const app = express();
