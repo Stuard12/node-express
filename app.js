@@ -42,8 +42,8 @@ app.post("/crear-checkout", async (req, res) => {
                     quantity: quantity || 1
                 }
             ],
-            success_url: "https://www.google.com",  // aquí luego pondrás tu URL real
-            cancel_url: "https://www.amazon.com"   // aquí luego pondrás tu URL real
+            success_url: "https://node-express-production-0263.up.railway.app/success",
+            cancel_url: "https://node-express-production-0263.up.railway.app/cancel"
         };
 
         const response = await axios.post(
