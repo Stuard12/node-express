@@ -61,10 +61,7 @@ app.post("/crear-checkout", async (req, res) => {
 
         console.log("✅ Checkout creado:", response.data);
 
-        return res.status(200).json({
-            checkout_url: response.data.checkout_url,
-            id: response.data.id
-        });
+        return res.redirect(response.data.checkout_url);
 
     } catch (error) {
         console.error("❌ Error creando checkout:", error.response?.data || error.message);
