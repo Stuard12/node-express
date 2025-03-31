@@ -141,6 +141,12 @@ app.post("/webhook", async (req, res) => {
     }
 });
 
+
+app.all("/webhook", (req, res, next) => {
+    console.log("🚦 Intento de acceso a webhook", req.method);
+    next();
+});
+
 // ✅ Rutas auxiliares
 app.use("/hello", helloRoute);
 app.get("/", (req, res) => {
