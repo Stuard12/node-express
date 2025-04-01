@@ -107,7 +107,7 @@ app.use("/webhook", bodyParser.raw({ type: "application/json" }));
 
 app.post("/webhook", async (req, res) => {
     const headers = req.headers;
-    const payload = req.body;
+    const payload = JSON.parse(req.body.toString());
 
     console.log("🚩 Webhook recibido");
 
