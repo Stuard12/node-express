@@ -16,7 +16,6 @@ console.log("PUBLIC KEY:", process.env.RECURRENTE_PUBLIC_KEY);
 console.log("SECRET KEY:", process.env.RECURRENTE_SECRET_KEY);
 console.log("SVIX SECRET:", process.env.SVIX_SECRET);
 
-
 // Middlewares
 app.use(cors());
 app.use(express.json()); // Para Hoppscotch y otros clientes JSON
