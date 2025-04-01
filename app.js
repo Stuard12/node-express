@@ -120,7 +120,7 @@ app.post("/webhook", async (req, res) => {
             console.log("🟣 Evento:", evt.type);
             console.log("📦 Datos recibidos:", JSON.stringify(evt.data, null, 2));
 
-            if (evt.type === "payment_intent.succeeded") {
+            if (evt.event_type === "payment_intent.succeeded") {
                 const checkoutId = evt.data?.checkout_id;
                 const amount = evt.data?.amount_in_cents / 100;
                 const currency = evt.data?.currency;
@@ -146,7 +146,7 @@ app.post("/webhook", async (req, res) => {
         console.log("Payload recibido:", payload);
 
         // Igual verificamos si es payment_intent.succeeded aunque no firmemos
-        if (payload?.type === "payment_intent.succeeded") {
+        if (payload?.event_type === "payment_intent.succeeded") {
             const checkoutId = payload?.data?.checkout_id;
             const amount = payload?.data?.amount_in_cents / 100;
             const currency = payload?.data?.currency;
