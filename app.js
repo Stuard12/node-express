@@ -103,51 +103,73 @@ app.get("/cancel", (req, res) => {
 
 
 // ✅ ENDPOINT DEL WEBHOOK DE RECURRENTE (con validación)
-
 app.use("/webhook", bodyParser.raw({ type: "application/json" }));
+
 app.post("/webhook", async (req, res) => {
     const headers = req.headers;
     const payload = req.body;
 
-    try {
-        const wh = new Webhook(process.env.SVIX_SECRET);
-        const evt = wh.verify(payload, headers);
+    console.log("🚩 Webhook recibido");
 
-        console.log("✅ Webhook recibido y verificado");
-        console.log("🟣 Evento:", evt.type);
-        console.log("📦 Datos recibidos:", JSON.stringify(evt.data, null, 2));
+    // Validación opcional
+    if (process.env.ENABLE_WEBHOOK_VALIDATION === "true") {
+        try {
+            const wh = new Webhook(process.env.SVIX_SECRET);
+            const evt = wh.verify(payload, headers);
+            console.log("✅ Webhook recibido y verificado");
+            console.log("🟣 Evento:", evt.type);
+            console.log("📦 Datos recibidos:", JSON.stringify(evt.data, null, 2));
 
-        if (evt.type === "payment_intent.succeeded") {
-            const checkoutId = evt.data?.checkout_id;
-            const amount = evt.data?.amount_in_cents / 100;
-            const currency = evt.data?.currency;
-            const createdAt = evt.data?.created_at;
+            if (evt.type === "payment_intent.succeeded") {
+                const checkoutId = evt.data?.checkout_id;
+                const amount = evt.data?.amount_in_cents / 100;
+                const currency = evt.data?.currency;
+                const createdAt = evt.data?.created_at;
 
-            console.log("💰 Pago exitoso");
+                console.log("💰 Pago exitoso");
+                console.log(`→ Checkout ID: ${checkoutId}`);
+                console.log(`→ Monto: Q${amount}`);
+                console.log(`→ Moneda: ${currency}`);
+                console.log(`→ Fecha: ${createdAt}`);
+            } else {
+                console.log("🔔 Evento recibido pero no es de tipo payment_intent.succeeded");
+            }
+
+            return res.status(200).json({ received: true });
+        } catch (err) {
+            console.error("❌ Webhook inválido:", err.message);
+            return res.status(400).json({ error: "Webhook no verificado" });
+        }
+    } else {
+        // 🚧 MODO DE PRUEBA SIN VALIDACIÓN
+        console.log("⚠ Webhook aceptado SIN verificación de firma");
+        console.log("Payload recibido:", payload);
+
+        // Igual verificamos si es payment_intent.succeeded aunque no firmemos
+        if (payload?.type === "payment_intent.succeeded") {
+            const checkoutId = payload?.data?.checkout_id;
+            const amount = payload?.data?.amount_in_cents / 100;
+            const currency = payload?.data?.currency;
+            const createdAt = payload?.data?.created_at;
+
+            console.log("💰 Pago exitoso (sin validación)");
             console.log(`→ Checkout ID: ${checkoutId}`);
             console.log(`→ Monto: Q${amount}`);
             console.log(`→ Moneda: ${currency}`);
             console.log(`→ Fecha: ${createdAt}`);
-
-            // Aquí puedes luego guardar, notificar, o marcar pedido pagado
-
-            res.status(200).json({ received: true });
         } else {
             console.log("🔔 Evento recibido pero no es de tipo payment_intent.succeeded");
-            res.status(200).json({ received: true });
         }
 
-    } catch (err) {
-        console.error("❌ Webhook inválido:", err.message);
-        res.status(400).json({ error: "Webhook no verificado" });
+        return res.status(200).json({ received: true });
     }
 });
-
 
 app.all("/webhook", (req, res, next) => {
     console.log("🚦 Intento de acceso a webhook", req.method);
     next();
 });
+
 
 // ✅ Rutas auxiliares
 app.use("/hello", helloRoute);
