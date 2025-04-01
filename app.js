@@ -57,7 +57,10 @@ app.post("/crear-checkout", async (req, res) => {
                 }
             ],
             success_url: "https://node-express-production-0263.up.railway.app/success",
-            cancel_url: "https://node-express-production-0263.up.railway.app/cancel"
+            cancel_url: "https://node-express-production-0263.up.railway.app/cancel",
+            metadata: {
+                order_id: order_id
+            }
         };
 
         const response = await axios.post(
