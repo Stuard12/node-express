@@ -115,8 +115,10 @@ app.post("/webhook", async (req, res) => {
     // Validación opcional
     if (process.env.ENABLE_WEBHOOK_VALIDATION === "true") {
         try {
+            const payload = req.body;
             const wh = new Webhook(process.env.SVIX_SECRET);
             const evt = wh.verify(payload, headers);
+            
             console.log("✅ Webhook recibido y verificado");
             console.log("🟣 Evento:", evt.type);
             console.log("📦 Datos recibidos:", JSON.stringify(evt.data, null, 2));
