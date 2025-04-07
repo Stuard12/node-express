@@ -40,6 +40,9 @@ app.post("/webhook", bodyParser.raw({ type: "application/json" }), async (req, r
 
             if (evt.event_type === "payment_intent.succeeded") {
                 const data = evt.data;
+                    console.log("🧪 Debug data:", JSON.stringify(data, null, 2));
+                    console.log("✅ evt completo:", JSON.stringify(evt, null, 2));
+                    console.log("✅ evt.data:", JSON.stringify(evt.data, null, 2));
                 const checkoutId = data?.checkout?.id;
                 const amount = data?.amount_in_cents / 100;
                 const currency = data?.currency;
