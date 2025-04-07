@@ -152,10 +152,10 @@ app.post("/webhook", async (req, res) => {
 
         // Igual verificamos si es payment_intent.succeeded aunque no firmemos
         if (payload?.event_type === "payment_intent.succeeded") {
-            const checkoutId = payload?.data?.checkout_id;
-            const amount = payload?.data?.amount_in_cents / 100;
-            const currency = payload?.data?.currency;
-            const createdAt = payload?.data?.created_at;
+            const checkoutId = payload?.checkout?.id;
+            const amount = payload?.amount_in_cents / 100;
+            const currency = payload?.currency;
+            const createdAt = payload?.created_at;
 
             console.log("💰 Pago exitoso (sin validación)");
             console.log(`→ Checkout ID: ${checkoutId}`);
