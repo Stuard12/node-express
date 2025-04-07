@@ -13,9 +13,9 @@ import fs from "fs";
 
 const app = express();
 
-console.log("PUBLIC KEY:", process.env.RECURRENTE_PUBLIC_KEY);
-console.log("SECRET KEY:", process.env.RECURRENTE_SECRET_KEY);
-console.log("SVIX SECRET:", process.env.SVIX_SECRET);
+//console.log("PUBLIC KEY:", process.env.RECURRENTE_PUBLIC_KEY);
+//console.log("SECRET KEY:", process.env.RECURRENTE_SECRET_KEY);
+//console.log("SVIX SECRET:", process.env.SVIX_SECRET);
 
 // ✅ ENDPOINT DEL WEBHOOK DE RECURRENTE (con validación) ------------------------------------------------
 app.post("/webhook", bodyParser.raw({ type: "application/json" }), async (req, res) => {
