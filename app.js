@@ -9,6 +9,7 @@ import bodyParser from "body-parser";
 import axios from "axios";
 import * as middleware from "./utils/middleware.js";
 import helloRoute from "./routes/helloRouter.js";
+import fs from "fs";
 
 const app = express();
 
@@ -22,7 +23,7 @@ app.use(express.json()); // Para Hoppscotch y otros clientes JSON
 app.use(express.urlencoded({ extended: true })); // Para formularios HTML (como el de Shopify)
 app.use(morgan("tiny"));
 
-// ✅ ENDPOINT DE CREACIÓN DEL CHECKOUT (Shopify lo usará)
+// ✅ ENDPOINT DE CREACIÓN DEL CHECKOUT (Shopify lo usará) ------------------------------------------------------
 app.post("/crear-checkout", async (req, res) => {
     try {
         console.log("✅ Recibido POST en /crear-checkout");
@@ -83,7 +84,7 @@ app.post("/crear-checkout", async (req, res) => {
     }
 });
 
-// ✅ Redireccion exitoso
+// ✅ Redireccion exitoso -------------------------------------------------------------------------------
 app.get("/success", (req, res) => {
     res.send(`
         <h1>✅ Pago exitoso</h1>
@@ -92,7 +93,7 @@ app.get("/success", (req, res) => {
     `);
 });
 
-// ✅ Redireccion cancelado
+// ✅ Redireccion cancelado ------------------------------------------------------------------------------
 app.get("/cancel", (req, res) => {
     res.send(`
         <h1>❌ Pago cancelado</h1>
@@ -102,7 +103,7 @@ app.get("/cancel", (req, res) => {
 });
 
 
-// ✅ ENDPOINT DEL WEBHOOK DE RECURRENTE (con validación)
+// ✅ ENDPOINT DEL WEBHOOK DE RECURRENTE (con validación) ------------------------------------------------
 app.use("/webhook", bodyParser.raw({ type: "application/json" }));
 
 app.post("/webhook", async (req, res) => {
@@ -144,7 +145,7 @@ app.post("/webhook", async (req, res) => {
             return res.status(400).json({ error: "Webhook no verificado" });
         }
     } else {
-        // 🚧 MODO DE PRUEBA SIN VALIDACIÓN
+        // ✅ 🚧 MODO DE PRUEBA SIN VALIDACIÓN -------------------------------------------------------------------------
         
         const payload = req.body; // ← Este es el fix real
         console.log("⚠ Webhook aceptado SIN verificación de firma");
@@ -156,12 +157,31 @@ app.post("/webhook", async (req, res) => {
             const amount = payload?.amount_in_cents / 100;
             const currency = payload?.currency;
             const createdAt = payload?.created_at;
+            const orderId = payload?.checkout?.metadata?.order_id;
+            const email = payload?.customer?.email;
 
             console.log("💰 Pago exitoso (sin validación)");
-            console.log(`→ Checkout ID: ${checkoutId}`);
-            console.log(`→ Monto: Q${amount}`);
-            console.log(`→ Moneda: ${currency}`);
-            console.log(`→ Fecha: ${createdAt}`);
+            console.log({
+                      order_id: orderId,
+                      checkout_id: checkoutId,
+                      amount: `Q${amount}`,
+                      currency,
+                      fecha: createdAt,
+                      email
+                    });
+            const logLine = `${new Date().toISOString()} | order_id=${orderId} | checkout=${checkoutId} | amount=Q${amount} | email=${email}\n`;
+
+            fs.appendFile("pagos.log", logLine, (err) => {
+            if (err) {
+                console.error("❌ Error guardando en pagos.log:", err.message);
+              } else {
+                console.log("📝 Pago registrado en pagos.log");
+                      }
+            });
+            //console.log(`→ Checkout ID: ${checkoutId}`);
+            //console.log(`→ Monto: Q${amount}`);
+            //console.log(`→ Moneda: ${currency}`);
+            //console.log(`→ Fecha: ${createdAt}`);
         } else {
             console.log("🔔 Evento recibido pero no es de tipo payment_intent.succeeded");
         }
