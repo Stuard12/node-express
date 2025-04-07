@@ -20,18 +20,19 @@ console.log("SVIX SECRET:", process.env.SVIX_SECRET);
 // ✅ ENDPOINT DEL WEBHOOK DE RECURRENTE (con validación) ------------------------------------------------
 app.post("/webhook", bodyParser.raw({ type: "application/json" }), async (req, res) => {
     const headers = req.headers;
-    const payload = req.body;
+    const enableValidation = process.env.ENABLE_WEBHOOK_VALIDATION === "true";
 
     console.log("🚩 Webhook recibido");
 
-    if (process.env.ENABLE_WEBHOOK_VALIDATION === "true") {
+    if (enableValidation) {
+        const payload = req.body; // Buffer sin parsear
         try {
             const wh = new Webhook(process.env.SVIX_SECRET);
             console.log("📩 Headers:", headers);
-            console.log("📦 Payload (buffer):", payload.toString());
+            console.log("📦 Payload (buffer):", payload.toString()); // <- Esto es seguro porque es buffer
             console.log("🔐 SVIX_SECRET usado:", process.env.SVIX_SECRET);
 
-            const evt = wh.verify(payload, headers);
+            const evt = wh.verify(payload, headers); // Verifica la firma
 
             console.log("✅ Webhook recibido y verificado");
             console.log("🟣 Evento:", evt.event_type);
@@ -39,7 +40,6 @@ app.post("/webhook", bodyParser.raw({ type: "application/json" }), async (req, r
 
             if (evt.event_type === "payment_intent.succeeded") {
                 const data = evt.data;
-
                 const checkoutId = data?.checkout?.id;
                 const amount = data?.amount_in_cents / 100;
                 const currency = data?.currency;
@@ -58,7 +58,6 @@ app.post("/webhook", bodyParser.raw({ type: "application/json" }), async (req, r
                 });
 
                 const logLine = `${new Date().toISOString()} | order_id=${orderId} | checkout=${checkoutId} | amount=Q${amount} | email=${email}\n`;
-
                 fs.appendFile("pagos.log", logLine, (err) => {
                     if (err) {
                         console.error("❌ Error guardando en pagos.log:", err.message);
@@ -76,8 +75,15 @@ app.post("/webhook", bodyParser.raw({ type: "application/json" }), async (req, r
             return res.status(400).json({ error: "Webhook no verificado" });
         }
     } else {
-        // MODO SIN VERIFICACIÓN DE FIRMA
-        const payload = JSON.parse(req.body.toString()); // ← Aquí sí puedes parsear
+        // Modo sin validación
+        let payload;
+        try {
+            payload = JSON.parse(req.body.toString()); // Convierte buffer a JSON
+        } catch (e) {
+            console.error("❌ Error parseando JSON sin validación:", e.message);
+            return res.status(400).json({ error: "JSON inválido" });
+        }
+
         console.log("⚠ Webhook aceptado SIN verificación de firma");
         console.log("Payload recibido:", payload);
 
@@ -100,7 +106,6 @@ app.post("/webhook", bodyParser.raw({ type: "application/json" }), async (req, r
             });
 
             const logLine = `${new Date().toISOString()} | order_id=${orderId} | checkout=${checkoutId} | amount=Q${amount} | email=${email}\n`;
-
             fs.appendFile("pagos.log", logLine, (err) => {
                 if (err) {
                     console.error("❌ Error guardando en pagos.log:", err.message);
