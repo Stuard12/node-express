@@ -107,7 +107,7 @@ app.use("/webhook", bodyParser.raw({ type: "application/json" }));
 
 app.post("/webhook", async (req, res) => {
     const headers = req.headers;
-    const payload = JSON.parse(req.body.toString());
+    // const payload = JSON.parse(req.body.toString());
 
     console.log("🚩 Webhook recibido");
 
@@ -145,6 +145,8 @@ app.post("/webhook", async (req, res) => {
         }
     } else {
         // 🚧 MODO DE PRUEBA SIN VALIDACIÓN
+        
+        const payload = req.body; // ← Este es el fix real
         console.log("⚠ Webhook aceptado SIN verificación de firma");
         console.log("Payload recibido:", payload);
 
