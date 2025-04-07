@@ -122,19 +122,34 @@ app.post("/webhook", async (req, res) => {
             console.log("📦 Datos recibidos:", JSON.stringify(evt.data, null, 2));
 
             if (evt.event_type === "payment_intent.succeeded") {
-
-                const eventData = evt?.data || payload;
-
+                const eventData = evt?.data;
+            
                 const checkoutId = eventData?.checkout?.id;
                 const amount = eventData?.amount_in_cents / 100;
                 const currency = eventData?.currency;
                 const createdAt = eventData?.created_at;
-
-                console.log("💰 Pago exitoso");
-                console.log(`→ Checkout ID: ${checkoutId}`);
-                console.log(`→ Monto: Q${amount}`);
-                console.log(`→ Moneda: ${currency}`);
-                console.log(`→ Fecha: ${createdAt}`);
+                const orderId = eventData?.checkout?.metadata?.order_id;
+                const email = eventData?.customer?.email;
+            
+                console.log("💰 Pago exitoso (verificado)");
+                console.log({
+                  order_id: orderId,
+                  checkout_id: checkoutId,
+                  amount: `Q${amount}`,
+                  currency,
+                  fecha: createdAt,
+                  email
+                });
+            
+                const logLine = `${new Date().toISOString()} | order_id=${orderId} | checkout=${checkoutId} | amount=Q${amount} | email=${email}\n`;
+            
+                fs.appendFile("pagos.log", logLine, (err) => {
+                  if (err) {
+                    console.error("❌ Error guardando en pagos.log:", err.message);
+                  } else {
+                    console.log("📝 Pago registrado en pagos.log (con verificación)");
+                  }
+                });       
             } else {
                 console.log("🔔 Evento recibido pero no es de tipo payment_intent.succeeded");
             }
