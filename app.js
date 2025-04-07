@@ -121,10 +121,13 @@ app.post("/webhook", async (req, res) => {
             console.log("📦 Datos recibidos:", JSON.stringify(evt.data, null, 2));
 
             if (evt.event_type === "payment_intent.succeeded") {
-                const checkoutId = evt.data?.checkout_id;
-                const amount = evt.data?.amount_in_cents / 100;
-                const currency = evt.data?.currency;
-                const createdAt = evt.data?.created_at;
+
+                const eventData = evt?.data || payload;
+
+                const checkoutId = eventData?.checkout?.id;
+                const amount = eventData?.amount_in_cents / 100;
+                const currency = eventData?.currency;
+                const createdAt = eventData?.created_at;
 
                 console.log("💰 Pago exitoso");
                 console.log(`→ Checkout ID: ${checkoutId}`);
