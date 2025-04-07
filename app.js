@@ -36,7 +36,7 @@ app.post("/webhook", bodyParser.raw({ type: "application/json" }), async (req, r
 
             console.log("✅ Webhook recibido y verificado");
             console.log("🟣 Evento:", evt.event_type);
-            console.log("📦 Datos recibidos:", JSON.stringify(evt.data, null, 2));
+            console.log("📦 Datos recibidos:", JSON.stringify(evt, null, 2));
 
             if (evt.event_type === "payment_intent.succeeded") {
                 //const data = evt.data;
