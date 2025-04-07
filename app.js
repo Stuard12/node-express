@@ -104,57 +104,54 @@ app.get("/cancel", (req, res) => {
 
 
 // ✅ ENDPOINT DEL WEBHOOK DE RECURRENTE (con validación) ------------------------------------------------
-app.use("/webhook", bodyParser.raw({ type: "application/json" }));
-
-app.post("/webhook", async (req, res) => {
+app.post("/webhook", bodyParser.raw({ type: "application/json" }), async (req, res) => {
     const headers = req.headers;
-    // const payload = JSON.parse(req.body.toString());
+    const payload = req.body;
 
     console.log("🚩 Webhook recibido");
 
-    // Validación opcional
     if (process.env.ENABLE_WEBHOOK_VALIDATION === "true") {
         try {
-            const payload = req.body;
             const wh = new Webhook(process.env.SVIX_SECRET);
             console.log("📩 Headers:", headers);
             console.log("📦 Payload (buffer):", payload.toString());
             console.log("🔐 SVIX_SECRET usado:", process.env.SVIX_SECRET);
+
             const evt = wh.verify(payload, headers);
-            
+
             console.log("✅ Webhook recibido y verificado");
-            console.log("🟣 Evento:", evt.type);
+            console.log("🟣 Evento:", evt.event_type);
             console.log("📦 Datos recibidos:", JSON.stringify(evt.data, null, 2));
 
             if (evt.event_type === "payment_intent.succeeded") {
-                const eventData = evt?.data;
-            
-                const checkoutId = eventData?.checkout?.id;
-                const amount = eventData?.amount_in_cents / 100;
-                const currency = eventData?.currency;
-                const createdAt = eventData?.created_at;
-                const orderId = eventData?.checkout?.metadata?.order_id;
-                const email = eventData?.customer?.email;
-            
+                const data = evt.data;
+
+                const checkoutId = data?.checkout?.id;
+                const amount = data?.amount_in_cents / 100;
+                const currency = data?.currency;
+                const createdAt = data?.created_at;
+                const orderId = data?.checkout?.metadata?.order_id;
+                const email = data?.customer?.email;
+
                 console.log("💰 Pago exitoso (verificado)");
                 console.log({
-                  order_id: orderId,
-                  checkout_id: checkoutId,
-                  amount: `Q${amount}`,
-                  currency,
-                  fecha: createdAt,
-                  email
+                    order_id: orderId,
+                    checkout_id: checkoutId,
+                    amount: `Q${amount}`,
+                    currency,
+                    fecha: createdAt,
+                    email
                 });
-            
+
                 const logLine = `${new Date().toISOString()} | order_id=${orderId} | checkout=${checkoutId} | amount=Q${amount} | email=${email}\n`;
-            
+
                 fs.appendFile("pagos.log", logLine, (err) => {
-                  if (err) {
-                    console.error("❌ Error guardando en pagos.log:", err.message);
-                  } else {
-                    console.log("📝 Pago registrado en pagos.log (con verificación)");
-                  }
-                });       
+                    if (err) {
+                        console.error("❌ Error guardando en pagos.log:", err.message);
+                    } else {
+                        console.log("📝 Pago registrado en pagos.log (con verificación)");
+                    }
+                });
             } else {
                 console.log("🔔 Evento recibido pero no es de tipo payment_intent.succeeded");
             }
@@ -165,13 +162,11 @@ app.post("/webhook", async (req, res) => {
             return res.status(400).json({ error: "Webhook no verificado" });
         }
     } else {
-        // ✅ 🚧 MODO DE PRUEBA SIN VALIDACIÓN -------------------------------------------------------------------------
-        
-        const payload = req.body; // ← Este es el fix real
+        // MODO SIN VERIFICACIÓN DE FIRMA
+        const payload = JSON.parse(req.body.toString()); // ← Aquí sí puedes parsear
         console.log("⚠ Webhook aceptado SIN verificación de firma");
         console.log("Payload recibido:", payload);
 
-        // Igual verificamos si es payment_intent.succeeded aunque no firmemos
         if (payload?.event_type === "payment_intent.succeeded") {
             const checkoutId = payload?.checkout?.id;
             const amount = payload?.amount_in_cents / 100;
@@ -182,26 +177,23 @@ app.post("/webhook", async (req, res) => {
 
             console.log("💰 Pago exitoso (sin validación)");
             console.log({
-                      order_id: orderId,
-                      checkout_id: checkoutId,
-                      amount: `Q${amount}`,
-                      currency,
-                      fecha: createdAt,
-                      email
-                    });
+                order_id: orderId,
+                checkout_id: checkoutId,
+                amount: `Q${amount}`,
+                currency,
+                fecha: createdAt,
+                email
+            });
+
             const logLine = `${new Date().toISOString()} | order_id=${orderId} | checkout=${checkoutId} | amount=Q${amount} | email=${email}\n`;
 
             fs.appendFile("pagos.log", logLine, (err) => {
-            if (err) {
-                console.error("❌ Error guardando en pagos.log:", err.message);
-              } else {
-                console.log("📝 Pago registrado en pagos.log");
-                      }
+                if (err) {
+                    console.error("❌ Error guardando en pagos.log:", err.message);
+                } else {
+                    console.log("📝 Pago registrado en pagos.log");
+                }
             });
-            //console.log(`→ Checkout ID: ${checkoutId}`);
-            //console.log(`→ Monto: Q${amount}`);
-            //console.log(`→ Moneda: ${currency}`);
-            //console.log(`→ Fecha: ${createdAt}`);
         } else {
             console.log("🔔 Evento recibido pero no es de tipo payment_intent.succeeded");
         }
