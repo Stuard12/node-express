@@ -117,6 +117,9 @@ app.post("/webhook", async (req, res) => {
         try {
             const payload = req.body;
             const wh = new Webhook(process.env.SVIX_SECRET);
+            console.log("📩 Headers:", headers);
+            console.log("📦 Payload (buffer):", payload.toString());
+            console.log("🔐 SVIX_SECRET usado:", process.env.SVIX_SECRET);
             const evt = wh.verify(payload, headers);
             
             console.log("✅ Webhook recibido y verificado");
